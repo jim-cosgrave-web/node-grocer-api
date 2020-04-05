@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
-var db = require('./db');
+var db = require('../db');
 
 router.use(function timeLog(req, res, next) {
-    console.log('Time: ', Date.now());
+    console.log('Inventory API called at : ', Date.now());
     next(); 
 });
 

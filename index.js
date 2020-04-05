@@ -1,22 +1,25 @@
-var express = require('express')
+const express = require('express')
   , bodyParser = require('body-parser');
 const app = express();
 const port = process.env.PORT || 3000;
-var cors = require('cors');
+const cors = require('cors');
 
 app.use(cors())
 
-var db = require('./db');
-var inventoryRoutes = require('./inventory');
+const db = require('./db');
+const inventoryRoutes = require('./endpoints/inventory');
+const storeRoutes = require('./endpoints/stores');
 
 app.use(bodyParser.json());
 app.use('/inventory', inventoryRoutes);
+app.use('/stores', storeRoutes);
 
 db.connect('mongodb+srv://admin:Password1@main-cluster-lwdvp.mongodb.net/test?retryWrites=true&w=majority', 'groceriesDB', function (err) {
   if (err) {
     console.log('Unable to connect to Mongo.');
     process.exit(1);
   } else {
+    app.get('/', (req, res) => res.send('Server is running'))
     app.listen(port, () => console.log(`App listening at http://localhost:${port}`))
   }
 });
