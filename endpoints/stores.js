@@ -164,4 +164,62 @@ router.put('/:storeId/grocery', function(req, res){
     });
 });
 
+//
+// PUT - Store Category
+//
+router.put('/:storeId/category', function(req, res){
+    const collection = getCollection();
+    const filter = { storeId: req.params.storeId }
+    const request = req.body;
+    const current = request.currentCategory;
+    const updated = request.updatedCategory;
+
+    collection.findOne(filter, function(err, store) {
+        if(!store) {
+            res.send('BAD!');
+        }
+
+        //
+        // Check if the grocery is moving up (close to the top) or down
+        //
+        const movingUp = updated.order < current.order;
+
+        //
+        // Update the groceries if the grocery is moving up
+        //
+        if (movingUp) {
+            for(let i = 0; i < store.categories.length; i++) {
+                let c = store.categories[i];
+
+                if(c.order >= updated.order) {
+                    c.order = c.order + 1;
+                }
+            }
+
+            let currentCategory = store.categories.find(c => { return c.name == current.name });
+            currentCategory.order = updated.order;
+        } else {
+            for(let i = 0; i < store.categories.length; i++) {
+                let c = store.categories[i];
+
+                if(c.order <= updated.order) {
+                    c.order = c.order - 1;
+                }
+            }
+
+            let currentCategory = store.categories.find(c => { return c.name == current.name });
+            currentCategory.order = updated.order;
+        }
+
+        //
+        // Update the collection
+        //
+        let update = { $set: { "categories": store.categories } };
+
+        collection.updateOne(filter, update, function(err, doc) {
+            res.send('OK');
+        });
+    });
+});
+
 module.exports = router;
