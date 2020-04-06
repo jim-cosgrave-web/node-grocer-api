@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const service = require('../services/stores.service');
+var passwordHash = require('password-hash');
 
 const getCollection = function() {
     return db.getCollection('stores'); 
@@ -9,6 +10,12 @@ const getCollection = function() {
 
 router.use(function timeLog(req, res, next) {
     console.log('Stores API called at : ', Date.now());
+    var hashedPassword = passwordHash.generate('eliteapi');
+    //var hashedPassword = 'sha1$3I7HRwy7$cbfdac6008f9cab4083784cbd1874f76618d2a97';
+    console.log(hashedPassword);
+    
+    console.log(passwordHash.verify('eliteapi', hashedPassword)); // true
+    console.log(passwordHash.verify('eliteapi2', hashedPassword)); // false
     next(); 
 });
 
