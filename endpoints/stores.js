@@ -216,9 +216,11 @@ router.put('/:storeId/category', function(req, res){
         //
         let update = { $set: { "categories": store.categories } };
 
-        collection.updateOne(filter, update, function(err, doc) {
-            res.send('OK');
-        });
+        // collection.updateOne(filter, update, function(err, doc) {
+        //     res.send('OK');
+        // });
+
+        res.json(store.categories);
     });
 });
 
