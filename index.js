@@ -10,11 +10,13 @@ const db = require('./db');
 const inventoryRoutes = require('./endpoints/inventory');
 const storeRoutes = require('./endpoints/stores');
 const userRoutes = require('./endpoints/users');
+const groceryListRoutes = require('./endpoints/grocery-list');
 
 app.use(bodyParser.json());
 app.use('/inventory', inventoryRoutes);
 app.use('/stores', storeRoutes);
 app.use('/users', userRoutes);
+app.use('/list', groceryListRoutes);
 
 db.connect('mongodb+srv://admin:Password1@main-cluster-lwdvp.mongodb.net/test?retryWrites=true&w=majority', 'groceriesDB', function (err) {
   if (err) {

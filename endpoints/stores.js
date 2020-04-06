@@ -10,12 +10,6 @@ const getCollection = function() {
 
 router.use(function timeLog(req, res, next) {
     console.log('Stores API called at : ', Date.now());
-    var hashedPassword = passwordHash.generate('eliteapi');
-    //var hashedPassword = 'sha1$3I7HRwy7$cbfdac6008f9cab4083784cbd1874f76618d2a97';
-    console.log(hashedPassword);
-    
-    console.log(passwordHash.verify('eliteapi', hashedPassword)); // true
-    console.log(passwordHash.verify('eliteapi2', hashedPassword)); // false
     next(); 
 });
 
@@ -70,6 +64,9 @@ router.post('/:storeId/grocery', function(req, res){
         //
         if(!category || category.length == 0) {
             category = { name: grocery.category ? grocery.category : "Uncategorized", groceries: [{ groceryName: grocery.groceryName, order: 1 }] };
+
+            const order = Math.max.apply(Math, store.categories.map(function(c) { return c.order; }));
+            category.order = order + 1;
 
             if(!store.categories) {
                 store.categories = []
