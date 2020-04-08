@@ -4,28 +4,28 @@ const db = require('../db');
 const service = require('../services/stores.service');
 var passwordHash = require('password-hash');
 
-const getCollection = function() {
-    return db.getCollection('stores'); 
+const getCollection = function () {
+    return db.getCollection('stores');
 }
 
 router.use(function timeLog(req, res, next) {
     console.log('Stores API called at : ', Date.now());
-    next(); 
+    next();
 });
 
 //
 // GET - All stores or by id
 //
-router.get('/:storeId?', function(req, res){
+router.get('/:storeId?', function (req, res) {
     const collection = getCollection();
 
     let filter = {};
 
-    if(req.params.storeId) {
+    if (req.params.storeId) {
         filter = { storeId: req.params.storeId }
     }
 
-    collection.find(filter).toArray(function(err, docs) {
+    collection.find(filter).toArray(function (err, docs) {
         res.json(docs);
     });
 });
@@ -33,10 +33,10 @@ router.get('/:storeId?', function(req, res){
 //
 // POST - New Store
 //
-router.post('/', function(req, res){
+router.post('/', function (req, res) {
     const collection = getCollection();
 
-    collection.insertOne(req.body, function(err, result){
+    collection.insertOne(req.body, function (err, result) {
         res.send('OK');
     });
 });
@@ -44,13 +44,13 @@ router.post('/', function(req, res){
 //
 // POST - New Store Grocery
 //
-router.post('/:storeId/grocery', function(req, res){
+router.post('/:storeId/grocery', function (req, res) {
     const collection = getCollection();
     const filter = { storeId: req.params.storeId }
     const grocery = req.body;
-    
-    collection.findOne(filter, function(err, store) {
-        if(!store) {
+
+    collection.findOne(filter, function (err, store) {
+        if (!store) {
             res.send('BAD!');
         }
 
@@ -58,17 +58,17 @@ router.post('/:storeId/grocery', function(req, res){
         // Find the category in the store if categories exist
         //
         let category = store.categories ? store.categories.find(c => { return c.name == grocery.category }) : [];
-        
+
         //
         // If the category doesnt exist, create a new one
         //
-        if(!category || category.length == 0) {
+        if (!category || category.length == 0) {
             category = { name: grocery.category ? grocery.category : "Uncategorized", groceries: [{ groceryName: grocery.groceryName, order: 1 }] };
 
-            const order = Math.max.apply(Math, store.categories.map(function(c) { return c.order; }));
+            const order = Math.max.apply(Math, store.categories.map(function (c) { return c.order; }));
             category.order = order + 1;
 
-            if(!store.categories) {
+            if (!store.categories) {
                 store.categories = []
             }
 
@@ -82,7 +82,7 @@ router.post('/:storeId/grocery', function(req, res){
             //
             // If it already exists, dont add it as a duplicate
             //
-            if(existing) {
+            if (existing) {
                 res.send('duplicate grocery');
                 return;
             }
@@ -90,7 +90,7 @@ router.post('/:storeId/grocery', function(req, res){
             //
             // Get the max order and set the new grocery to that order + 1
             //
-            const order = Math.max.apply(Math, category.groceries.map(function(g) { return g.order; }));
+            const order = Math.max.apply(Math, category.groceries.map(function (g) { return g.order; }));
             grocery.order = order + 1;
 
             let newGrocery = { groceryName: grocery.groceryName, order: grocery.order };
@@ -102,7 +102,7 @@ router.post('/:storeId/grocery', function(req, res){
         // Update the collection
         //
         var update = { $set: { categories: store.categories } };
-        collection.updateOne(filter, update, function(err, doc) {
+        collection.updateOne(filter, update, function (err, doc) {
             res.send('OK');
         });
     });
@@ -111,15 +111,15 @@ router.post('/:storeId/grocery', function(req, res){
 //
 // PUT - Store Grocery
 //
-router.put('/:storeId/grocery', function(req, res){
+router.put('/:storeId/grocery', function (req, res) {
     const collection = getCollection();
     const filter = { storeId: req.params.storeId }
     const request = req.body;
     const current = request.currentGrocery;
     const updated = request.updatedGrocery;
 
-    collection.findOne(filter, function(err, store) {
-        if(!store) {
+    collection.findOne(filter, function (err, store) {
+        if (!store) {
             res.send('BAD!');
         }
 
@@ -133,10 +133,10 @@ router.put('/:storeId/grocery', function(req, res){
         // Update the groceries if the grocery is moving up
         //
         if (movingUp) {
-            for(let i = 0; i < category.groceries.length; i++) {
+            for (let i = 0; i < category.groceries.length; i++) {
                 let g = category.groceries[i];
 
-                if(g.order >= updated.order) {
+                if (g.order >= updated.order) {
                     g.order = g.order + 1;
                 }
             }
@@ -144,10 +144,10 @@ router.put('/:storeId/grocery', function(req, res){
             let currentGrocery = category.groceries.find(g => { return g.groceryName == current.groceryName });
             currentGrocery.order = updated.order;
         } else {
-            for(let i = 0; i < category.groceries.length; i++) {
+            for (let i = 0; i < category.groceries.length; i++) {
                 let g = category.groceries[i];
 
-                if(g.order <= updated.order) {
+                if (g.order <= updated.order) {
                     g.order = g.order - 1;
                 }
             }
@@ -162,7 +162,7 @@ router.put('/:storeId/grocery', function(req, res){
         let updateFilter = { storeId: req.params.storeId, "categories.name": request.category };
         let update = { $set: { "categories.$.groceries": category.groceries } };
 
-        collection.updateOne(updateFilter, update, function(err, doc) {
+        collection.updateOne(updateFilter, update, function (err, doc) {
             res.send('OK');
         });
     });
@@ -171,15 +171,15 @@ router.put('/:storeId/grocery', function(req, res){
 //
 // PUT - Store Category
 //
-router.put('/:storeId/category', function(req, res){
+router.put('/:storeId/category', function (req, res) {
     const collection = getCollection();
     const filter = { storeId: req.params.storeId }
     const request = req.body;
     const current = request.currentCategory;
     const updated = request.updatedCategory;
 
-    collection.findOne(filter, function(err, store) {
-        if(!store) {
+    collection.findOne(filter, function (err, store) {
+        if (!store) {
             res.send('BAD!');
         }
 
@@ -187,32 +187,19 @@ router.put('/:storeId/category', function(req, res){
         // Check if the grocery is moving up (close to the top) or down
         //
         const movingUp = updated.order < current.order;
+        const currentCategory = store.categories.find(c => c.name == request.category);
+        const swapCategory = store.categories.find(c => c.order == updated.order);
 
-        //
-        // Update the groceries if the grocery is moving up
-        //
-        if (movingUp) {
-            for(let i = 0; i < store.categories.length; i++) {
-                let c = store.categories[i];
+        for (let i = 0; i < store.categories.length; i++) {
+            let c = store.categories[i];
 
-                if(c.order >= updated.order) {
-                    c.order = c.order + 1;
-                }
+            if (c == currentCategory) {
+                c.order = updated.order;
             }
 
-            let currentCategory = store.categories.find(c => { return c.name == current.name });
-            currentCategory.order = updated.order;
-        } else {
-            for(let i = 0; i < store.categories.length; i++) {
-                let c = store.categories[i];
-
-                if(c.order <= updated.order) {
-                    c.order = c.order - 1;
-                }
+            if(c == swapCategory) {
+                c.order = current.order;
             }
-
-            let currentCategory = store.categories.find(c => { return c.name == current.name });
-            currentCategory.order = updated.order;
         }
 
         //
@@ -220,11 +207,9 @@ router.put('/:storeId/category', function(req, res){
         //
         let update = { $set: { "categories": store.categories } };
 
-        // collection.updateOne(filter, update, function(err, doc) {
-        //     res.send('OK');
-        // });
-
-        res.json(store.categories);
+        collection.updateOne(filter, update, function (err, doc) {
+            res.send('OK');
+        });
     });
 });
 

@@ -3,7 +3,7 @@ var router = express.Router();
 var db = require('../db');
 
 router.use(function timeLog(req, res, next) {
-    console.log('Inventory API called at : ', Date.now());
+    //console.log('Inventory API called at : ', Date.now());
     next(); 
 });
 

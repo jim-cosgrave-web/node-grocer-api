@@ -4,7 +4,7 @@ var db = require('../db');
 const { ObjectId } = require('mongodb').ObjectId;
 
 router.use(function timeLog(req, res, next) {
-    console.log('Grocery List API called at : ', Date.now());
+    //console.log('Grocery List API called at : ', Date.now());
     next();
 });
 
@@ -113,7 +113,6 @@ router.post('/toggleGrocery', function (req, res) {
 
     delete req.body._id;
 
-    //db.test_invoice.update({user_id : 123456 , "items.item_name":"my_item_one"} , {$inc: {"items.$.price": 10}})
     collection.update(filter, { $set: { "groceries.$.checked": req.body.grocery.checked } }, function() {
         res.send('Ok');
     });

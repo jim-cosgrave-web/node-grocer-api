@@ -4,7 +4,7 @@ var db = require('../db');
 var passwordHash = require('password-hash');
 
 router.use(function timeLog(req, res, next) {
-    console.log('User API called at : ', Date.now());
+    //console.log('User API called at : ', Date.now());
     next(); 
 });
 
