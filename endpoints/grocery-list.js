@@ -25,9 +25,9 @@ router.get('/:listId?', function (req, res) {
 });
 
 router.get('/:listId/:storeId', function (req, res) {
-    let debug = {};
-    //debug['storeId'] = req.params.storeId;
-    //debug['listId'] = req.params.listId;
+    let responseList = {};
+    responseList.storeId = req.params.storeId;
+    responseList.listId = req.params.listId;
 
     let collection = getCollection();
     let storesCollection = getStoreCollection();
@@ -37,10 +37,11 @@ router.get('/:listId/:storeId', function (req, res) {
     let groceryList = [];
 
     collection.findOne({ _id: list_id }, function (err, list) {
-        //debug['listname'] = list;
+        responseList.listName = list.name;
+        responseList.userId = list.user_id;
 
         storesCollection.findOne({ _id: store_id }, function (err, store) {
-            //debug['store'] = store;
+            responseList.storeName = store.name;
 
             //
             // Loop over each category
@@ -62,7 +63,7 @@ router.get('/:listId/:storeId', function (req, res) {
                         const listGrocery = list.groceries[k];
 
                         if (listGrocery.name == storeGrocery.groceryName) {
-                            category.groceries.push(storeGrocery);
+                            category.groceries.push(listGrocery);
                         }
                     }
                 }
@@ -73,9 +74,9 @@ router.get('/:listId/:storeId', function (req, res) {
                 }
             }
 
-            debug['list'] = groceryList;
+            responseList.list = groceryList;
 
-            res.json(debug);
+            res.json(responseList);
         });
     });
 
@@ -85,10 +86,36 @@ router.get('/:listId/:storeId', function (req, res) {
 });
 
 router.post('/', function (req, res) {
-    var collection = getCollection();
+    const collection = getCollection();
 
-    collection.insertOne(req.body, function (err, result) {
-        res.send('OK');
+    const list_id = new ObjectId(req.body._id);
+    const filter = { _id: list_id };
+
+    //
+    // Must remove the _id property otherwise mongo throws an error
+    //
+    delete req.body._id;
+
+    collection.update(filter, req.body, { upsert: true }, function (err, response) {
+        if (err) {
+            res.send('Error');
+        } else {
+            res.send('Ok');
+        }
+    });
+});
+
+router.post('/toggleGrocery', function (req, res) {
+    const collection = getCollection();
+
+    const list_id = new ObjectId(req.body.list_id);
+    const filter = { _id: list_id, "groceries.name": req.body.grocery.name };
+
+    delete req.body._id;
+
+    //db.test_invoice.update({user_id : 123456 , "items.item_name":"my_item_one"} , {$inc: {"items.$.price": 10}})
+    collection.update(filter, { $set: { "groceries.$.checked": req.body.grocery.checked } }, function() {
+        res.send('Ok');
     });
 });
 
