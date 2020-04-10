@@ -58,6 +58,7 @@ router.post('/:storeId/grocery', function (req, res) {
         // Find the category in the store if categories exist
         //
         let category = store.categories ? store.categories.find(c => { return c.name == grocery.category }) : [];
+        let newGrocery = {};
 
         //
         // If the category doesnt exist, create a new one
@@ -93,7 +94,7 @@ router.post('/:storeId/grocery', function (req, res) {
             const order = Math.max.apply(Math, category.groceries.map(function (g) { return g.order; }));
             grocery.order = order + 1;
 
-            let newGrocery = { groceryName: grocery.groceryName, order: grocery.order };
+            newGrocery = { groceryName: grocery.groceryName, order: grocery.order };
 
             category.groceries.push(newGrocery);
         }
@@ -103,7 +104,7 @@ router.post('/:storeId/grocery', function (req, res) {
         //
         var update = { $set: { categories: store.categories } };
         collection.updateOne(filter, update, function (err, doc) {
-            res.send('OK');
+            res.json(newGrocery);
         });
     });
 });
