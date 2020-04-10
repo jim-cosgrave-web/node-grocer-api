@@ -126,34 +126,20 @@ router.put('/:storeId/grocery', function (req, res) {
         //
         // Check if the grocery is moving up (close to the top) or down
         //
-        const movingUp = updated.order < current.order;
-        var category = store.categories.find(c => { return c.name == request.category });
+        const category = store.categories.find(c => c.name == request.category);
+        const currentGrocery = category.groceries.find(c => c.groceryName == current.groceryName);
+        const swapGrocery = category.groceries.find(c => c.order == updated.order);
 
-        //
-        // Update the groceries if the grocery is moving up
-        //
-        if (movingUp) {
-            for (let i = 0; i < category.groceries.length; i++) {
-                let g = category.groceries[i];
+        for (let i = 0; i < category.groceries.length; i++) {
+            let c = category.groceries[i];
 
-                if (g.order >= updated.order) {
-                    g.order = g.order + 1;
-                }
+            if (c == currentGrocery) {
+                c.order = updated.order;
             }
 
-            let currentGrocery = category.groceries.find(g => { return g.groceryName == current.groceryName });
-            currentGrocery.order = updated.order;
-        } else {
-            for (let i = 0; i < category.groceries.length; i++) {
-                let g = category.groceries[i];
-
-                if (g.order <= updated.order) {
-                    g.order = g.order - 1;
-                }
+            if (c == swapGrocery) {
+                c.order = current.order;
             }
-
-            let currentGrocery = category.groceries.find(g => { return g.groceryName == current.groceryName });
-            currentGrocery.order = updated.order;
         }
 
         //
@@ -186,7 +172,6 @@ router.put('/:storeId/category', function (req, res) {
         //
         // Check if the grocery is moving up (close to the top) or down
         //
-        const movingUp = updated.order < current.order;
         const currentCategory = store.categories.find(c => c.name == request.category);
         const swapCategory = store.categories.find(c => c.order == updated.order);
 
