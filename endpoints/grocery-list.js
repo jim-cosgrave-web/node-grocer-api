@@ -105,6 +105,65 @@ router.post('/', function (req, res) {
     });
 });
 
+
+router.post('/grocery', function (req, res) {
+    const collection = getCollection();
+
+    const list_id = new ObjectId(req.body.list_id);
+    let filter = { _id: list_id, "groceries.name": req.body.grocery.name };
+
+    delete req.body._id;
+
+    collection.findOne(filter, function (err, grocery) {
+        if(grocery) {
+            //
+            // Already exists. Dont add again.
+            //
+            res.json({ exists: true });
+        } else {
+            filter = { _id: list_id };
+
+            collection.findOne(filter, function(err, list) {
+                if(!list) {
+                    res.json({ notFound: { type: "List" }});
+                } else {
+                    if(!req.body.grocery.checked) {
+                        req.body.grocery.checked = false;
+                    }
+
+                    list.groceries.push(req.body.grocery);
+
+                    collection.update(filter, list);
+                    res.json(list);
+                }
+            });
+        }
+    });
+});
+
+router.put('/grocery', function (req, res) {
+    const collection = getCollection();
+
+    const list_id = new ObjectId(req.body.list_id);
+    let filter = { _id: list_id, "groceries.name": req.body.grocery.name };
+
+    delete req.body._id;
+
+    collection.update(filter, { $set: { "groceries.$": req.body.grocery } });
+    res.send('OK');
+
+    // collection.findOne(filter, function (err, grocery) {
+    //     if(grocery) {
+    //         //
+    //         // Already exists. Dont add again.
+    //         //
+    //         res.json({ exists: true });
+    //     } else {
+    //         res.json({ exists: false });
+    //     }
+    // });
+});
+
 router.post('/toggleGrocery', function (req, res) {
     const collection = getCollection();
 
@@ -117,5 +176,7 @@ router.post('/toggleGrocery', function (req, res) {
         res.send('Ok');
     });
 });
+
+
 
 module.exports = router;
