@@ -9,7 +9,7 @@ const getCollection = function () {
 }
 
 router.use(function timeLog(req, res, next) {
-    console.log('Stores API called at : ', Date.now());
+    console.log('Stores API called at --- : ', Date.now());
     next();
 });
 
@@ -38,6 +38,40 @@ router.post('/', function (req, res) {
 
     collection.insertOne(req.body, function (err, result) {
         res.send('OK');
+    });
+});
+
+//
+// POST - New Store Grocery
+//
+router.post('/:storeId/category', function (req, res) {
+    const collection = getCollection();
+    const filter = { storeId: req.params.storeId }
+    const request = req.body;
+
+    collection.findOne(filter, function (err, store) {
+        if (!store) {
+            res.send('BAD!');
+        }
+
+        category = { name: request.category, groceries: [] };
+
+        const order = Math.max.apply(Math, store.categories.map(function (c) { return c.order; }));
+        category.order = order + 1;
+
+        if (!store.categories) {
+            store.categories = []
+        }
+
+        store.categories.push(category);
+
+        //
+        // Update the collection
+        // 
+        var update = { $set: { categories: store.categories } };
+        collection.updateOne(filter, update, function (err, doc) {
+            res.json(store.categories);
+        });
     });
 });
 
@@ -91,7 +125,12 @@ router.post('/:storeId/grocery', function (req, res) {
             //
             // Get the max order and set the new grocery to that order + 1
             //
-            const order = Math.max.apply(Math, category.groceries.map(function (g) { return g.order; }));
+            let order = Math.max.apply(Math, category.groceries.map(function (g) { return g.order; }));
+
+            if (order == Number.NEGATIVE_INFINITY) {
+                order = 0;
+            }
+
             grocery.order = order + 1;
 
             newGrocery = { groceryName: grocery.groceryName, order: grocery.order };
@@ -183,7 +222,7 @@ router.put('/:storeId/category', function (req, res) {
                 c.order = updated.order;
             }
 
-            if(c == swapCategory) {
+            if (c == swapCategory) {
                 c.order = current.order;
             }
         }
@@ -198,5 +237,28 @@ router.put('/:storeId/category', function (req, res) {
         });
     });
 });
+
+//
+// DELETE - Store Grocery
+//
+router.delete('/:storeId/grocery', function (req, res) {
+    const collection = getCollection();
+    const filter = { storeId: req.params.storeId }
+    const request = req.body;
+
+    collection.findOne(filter, function (err, store) {
+        if (!store) {
+            res.send('BAD!');
+        }
+
+        let updateFilter = { storeId: req.params.storeId, "categories.name": request.category };
+        let update = { $pull: { "categories.$.groceries": { groceryName: request.groceryName } } };
+
+        collection.updateOne(updateFilter, update, function (err, doc) {
+            res.send('OK');
+        });
+    });
+});
+
 
 module.exports = router;
