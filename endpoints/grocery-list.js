@@ -65,8 +65,10 @@ router.get('/:listId/:storeId', function (req, res) {
                     //
                     for (let k = 0; k < list.groceries.length; k++) {
                         const listGrocery = list.groceries[k];
+                        const order = storeGrocery.order;
 
                         if (listGrocery.name == storeGrocery.groceryName) {
+                            listGrocery.order = order;
                             category.groceries.push(listGrocery);
                         }
                     }
