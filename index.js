@@ -11,12 +11,14 @@ const inventoryRoutes = require('./endpoints/inventory');
 const storeRoutes = require('./endpoints/stores');
 const userRoutes = require('./endpoints/users');
 const groceryListRoutes = require('./endpoints/grocery-list');
+const groceryRoutes = require('./endpoints/groceries');
 
 app.use(bodyParser.json());
 app.use('/inventory', inventoryRoutes);
 app.use('/stores', storeRoutes);
 app.use('/users', userRoutes);
 app.use('/list', groceryListRoutes);
+app.use('/groceries', groceryRoutes);
 
 db.connect('mongodb+srv://admin:Password1@main-cluster-lwdvp.mongodb.net/test?retryWrites=true&w=majority', 'groceriesDB', function (err) {
   if (err) {

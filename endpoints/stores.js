@@ -8,6 +8,10 @@ const getCollection = function () {
     return db.getCollection('stores');
 }
 
+const getGroceryCollection = function() {
+    return db.getCollection('groceries'); 
+}
+
 router.use(function timeLog(req, res, next) {
     console.log('Stores API called at --- : ', Date.now());
     next();
@@ -42,7 +46,7 @@ router.post('/', function (req, res) {
 });
 
 //
-// POST - New Store Grocery
+// POST - New Store Category
 //
 router.post('/:storeId/category', function (req, res) {
     const collection = getCollection();
@@ -82,6 +86,9 @@ router.post('/:storeId/grocery', function (req, res) {
     const collection = getCollection();
     const filter = { storeId: req.params.storeId }
     const grocery = req.body;
+
+    const groceryCollection = getGroceryCollection();
+    groceryCollection.update({ name: grocery.groceryName.toLowerCase() }, { name: grocery.groceryName }, {upsert: true});
 
     collection.findOne(filter, function (err, store) {
         if (!store) {

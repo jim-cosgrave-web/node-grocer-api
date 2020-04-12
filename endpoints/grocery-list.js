@@ -16,6 +16,10 @@ const getStoreCollection = function () {
     return db.getCollection('stores');
 }
 
+const getGroceryCollection = function() {
+    return db.getCollection('groceries'); 
+}
+
 router.get('/:listId?', function (req, res) {
     var collection = getCollection();
 
@@ -110,9 +114,12 @@ router.post('/grocery', function (req, res) {
     const collection = getCollection();
 
     const list_id = new ObjectId(req.body.list_id);
-    let filter = { _id: list_id, "groceries.name": req.body.grocery.name };
+    let filter = { _id: list_id, "groceries.name": {$regex: new RegExp("^" + req.body.grocery.name, "i")} };
 
     delete req.body._id;
+
+    const groceryCollection = getGroceryCollection();
+    groceryCollection.update({ name: {$regex: new RegExp("^" + req.body.grocery.name, "i")} }, { name: req.body.grocery.name }, {upsert: true});
 
     collection.findOne(filter, function (err, grocery) {
         if(grocery) {
@@ -151,17 +158,6 @@ router.put('/grocery', function (req, res) {
 
     collection.update(filter, { $set: { "groceries.$": req.body.grocery } });
     res.send('OK');
-
-    // collection.findOne(filter, function (err, grocery) {
-    //     if(grocery) {
-    //         //
-    //         // Already exists. Dont add again.
-    //         //
-    //         res.json({ exists: true });
-    //     } else {
-    //         res.json({ exists: false });
-    //     }
-    // });
 });
 
 router.post('/toggleGrocery', function (req, res) {
