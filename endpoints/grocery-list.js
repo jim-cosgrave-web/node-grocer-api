@@ -28,6 +28,9 @@ router.get('/:listId?', function (req, res) {
     });
 });
 
+//
+// Get list for store
+//
 router.get('/:listId/:storeId', function (req, res) {
     let responseList = {};
     responseList.storeId = req.params.storeId;
@@ -39,10 +42,13 @@ router.get('/:listId/:storeId', function (req, res) {
     let store_id = new ObjectId(req.params.storeId);
 
     let groceryList = [];
+    let categories = [{ name: '**Uncategorized**', value: '', uncategorized: true }];
 
     collection.findOne({ _id: list_id }, function (err, list) {
         responseList.listName = list.name;
         responseList.userId = list.user_id;
+
+        let remainingGroceries = list.groceries.slice();
 
         storesCollection.findOne({ _id: store_id }, function (err, store) {
             responseList.storeName = store.name;
@@ -53,6 +59,7 @@ router.get('/:listId/:storeId', function (req, res) {
             for (let i = 0; i < store.categories.length; i++) {
                 const storeCategory = store.categories[i];
                 let category = { name: storeCategory.name, groceries: [] };
+                categories.push({ name: storeCategory.name, value: storeCategory.name });
 
                 //
                 // Loop over each grocery in the category
@@ -70,6 +77,9 @@ router.get('/:listId/:storeId', function (req, res) {
                         if (listGrocery.name == storeGrocery.groceryName) {
                             listGrocery.order = order;
                             category.groceries.push(listGrocery);
+
+                            const index = remainingGroceries.indexOf(listGrocery);
+                            remainingGroceries.splice(index, 1);
                         }
                     }
                 }
@@ -77,10 +87,19 @@ router.get('/:listId/:storeId', function (req, res) {
                 if (category.groceries.length > 0) {
                     category.groceries.sort((a, b) => a.order - b.order);
                     groceryList.push(category);
+                } else {
+                    category.hidden = true;
+                    groceryList.push(category);
                 }
             }
 
+            if(remainingGroceries && remainingGroceries.length > 0) {
+                let uncategorized = { name: '**Uncategorized**', uncategorized: true, groceries: remainingGroceries };
+                groceryList.splice(0, 0, uncategorized);
+            }
+
             responseList.list = groceryList;
+            responseList.categories = categories;
 
             res.json(responseList);
         });
