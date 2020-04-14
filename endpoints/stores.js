@@ -202,6 +202,58 @@ router.put('/:storeId/grocery', function (req, res) {
 });
 
 //
+// PUT - Store Grocery
+//
+router.put('/:storeId/changeGroceryCategory', function (req, res) {
+    const collection = getCollection();
+    const filter = { storeId: req.params.storeId }
+    const request = req.body;
+    const groceryName = request.groceryName;
+    const currentCategoryName = request.currentCategoryName;
+    const newCategoryName = request.newCategoryName;
+
+    collection.findOne(filter, function (err, store) {
+        if (!store) {
+            res.send('BAD!');
+        }
+
+        const currentCategory = store.categories.find(c => c.name == currentCategoryName);
+        const grocery = currentCategory.groceries.find(g => g.groceryName == groceryName);
+        const gIndex = currentCategory.groceries.indexOf(grocery);
+        currentCategory.groceries.splice(gIndex, 1);
+
+        const newCategory = store.categories.find(c => c.name == newCategoryName);
+        let order = Math.max.apply(Math, newCategory.groceries.map(function (c) { return c.order; })); 
+
+        if (order == Number.NEGATIVE_INFINITY) {
+            order = 0;
+        }
+
+        order = order + 1;
+
+        grocery.order = order;
+        newCategory.groceries.push(grocery);
+
+        let updateFilter = { storeId: req.params.storeId, "categories.name": currentCategoryName };
+        let update = { $pull: { "categories.$.groceries": { groceryName: request.groceryName } } };
+
+        collection.updateOne(updateFilter, update, function (err, doc) {
+        });
+
+                //
+        // Update the collection
+        //
+        let updateFilter2 = { storeId: req.params.storeId, "categories.name": newCategoryName };
+        let update2 = { $set: { "categories.$.groceries": newCategory.groceries } };
+
+        collection.updateOne(updateFilter2, update2, function (err, doc) {
+        }); 
+
+        res.json(newCategory);
+    });
+});
+
+//
 // PUT - Store Category
 //
 router.put('/:storeId/category', function (req, res) {

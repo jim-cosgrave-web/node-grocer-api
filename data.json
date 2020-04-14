@@ -1,0 +1,200 @@
+{
+    "_id": {
+        "$oid": "5e8d429a5b1e405eb00f75c5"
+    },
+    "storeId": "S0000001",
+    "name": "Aldi",
+    "city": "Lemont",
+    "state": "IL",
+    "categories": [
+        {
+            "name": "Produce",
+            "order": {
+                "$numberInt": "1"
+            },
+            "groceries": [
+                {
+                    "groceryName": "Bananas",
+                    "order": {
+                        "$numberInt": "1"
+                    }
+                },
+                {
+                    "groceryName": "Apples",
+                    "order": {
+                        "$numberInt": "2"
+                    }
+                },
+                {
+                    "groceryName": "Strawberries",
+                    "order": {
+                        "$numberInt": "3"
+                    }
+                },
+                {
+                    "groceryName": "Avocado",
+                    "order": {
+                        "$numberInt": "4"
+                    }
+                },
+                {
+                    "groceryName": "Peppers",
+                    "order": {
+                        "$numberInt": "5"
+                    }
+                },
+                {
+                    "groceryName": "Bell Peppers",
+                    "order": {
+                        "$numberInt": "6"
+                    }
+                },
+                {
+                    "groceryName": "Blueberries",
+                    "order": {
+                        "$numberInt": "7"
+                    }
+                },
+                {
+                    "groceryName": "Blue Berries",
+                    "order": {
+                        "$numberInt": "8"
+                    }
+                },
+                {
+                    "groceryName": "Cantalope",
+                    "order": {
+                        "$numberInt": "9"
+                    }
+                },
+                {
+                    "groceryName": "Lettuce",
+                    "order": {
+                        "$numberInt": "10"
+                    }
+                },
+                {
+                    "groceryName": "Spinach",
+                    "order": {
+                        "$numberInt": "11"
+                    }
+                },
+                {
+                    "groceryName": "Kale",
+                    "order": {
+                        "$numberInt": "12"
+                    }
+                },
+                {
+                    "groceryName": "Tomatoes",
+                    "order": {
+                        "$numberInt": "13"
+                    }
+                },
+                {
+                    "groceryName": "Cherry Tomatoes",
+                    "order": {
+                        "$numberInt": "14"
+                    }
+                },
+                {
+                    "groceryName": "Grape Tomatoes",
+                    "order": {
+                        "$numberInt": "15"
+                    }
+                },
+                {
+                    "groceryName": "Cucumber",
+                    "order": {
+                        "$numberInt": "16"
+                    }
+                },
+                {
+                    "groceryName": "Potatoes",
+                    "order": {
+                        "$numberInt": "17"
+                    }
+                },
+                {
+                    "groceryName": "Onions",
+                    "order": {
+                        "$numberInt": "18"
+                    }
+                },
+                {
+                    "groceryName": "Jalapeno",
+                    "order": {
+                        "$numberInt": "19"
+                    }
+                },
+                {
+                    "groceryName": "Green Onions",
+                    "order": {
+                        "$numberInt": "20"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Bread Aisle",
+            "order": {
+                "$numberInt": "2"
+            },
+            "groceries": [
+                {
+                    "groceryName": "Crackers",
+                    "order": {
+                        "$numberInt": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Cold Section",
+            "order": {
+                "$numberInt": "4"
+            },
+            "groceries": [
+                {
+                    "groceryName": "Spread Butter",
+                    "order": {
+                        "$numberInt": "1"
+                    }
+                },
+                {
+                    "groceryName": "Stick Butter",
+                    "order": {
+                        "$numberInt": "2"
+                    }
+                },
+                {
+                    "groceryName": "Milk",
+                    "order": {
+                        "$numberInt": "3"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Breakfast",
+            "groceries": [],
+            "order": {
+                "$numberInt": "3"
+            }
+        },
+        {
+            "name": "Canned Vegetables",
+            "groceries": [
+                {
+                    "groceryName": "Farfel",
+                    "order": {
+                        "$numberInt": "1"
+                    }
+                }
+            ],
+            "order": {
+                "$numberInt": "5"
+            }
+        }
+    ]
+}
