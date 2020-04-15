@@ -194,6 +194,19 @@ router.post('/toggleGrocery', function (req, res) {
     });
 });
 
+router.post('/removechecked', function (req, res) {
+    const collection = getCollection();
+
+    const list_id = new ObjectId(req.body.list_id);
+    let filter = { _id: list_id  };
+
+    console.log(filter);
+
+    collection.updateMany(filter, { $pull: { "groceries": { checked : true } } }, function() {
+        res.send('Ok');
+    });
+});
+
 
 
 module.exports = router;
