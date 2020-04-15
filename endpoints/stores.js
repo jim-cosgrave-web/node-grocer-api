@@ -8,8 +8,8 @@ const getCollection = function () {
     return db.getCollection('stores');
 }
 
-const getGroceryCollection = function() {
-    return db.getCollection('groceries'); 
+const getGroceryCollection = function () {
+    return db.getCollection('groceries');
 }
 
 router.use(function timeLog(req, res, next) {
@@ -88,7 +88,7 @@ router.post('/:storeId/grocery', function (req, res) {
     const grocery = req.body;
 
     const groceryCollection = getGroceryCollection();
-    groceryCollection.update({ name: grocery.groceryName.toLowerCase() }, { name: grocery.groceryName }, {upsert: true});
+    groceryCollection.update({ name: grocery.groceryName.toLowerCase() }, { name: grocery.groceryName }, { upsert: true });
 
     collection.findOne(filter, function (err, store) {
         if (!store) {
@@ -223,7 +223,7 @@ router.put('/:storeId/changeGroceryCategory', function (req, res) {
         currentCategory.groceries.splice(gIndex, 1);
 
         const newCategory = store.categories.find(c => c.name == newCategoryName);
-        let order = Math.max.apply(Math, newCategory.groceries.map(function (c) { return c.order; })); 
+        let order = Math.max.apply(Math, newCategory.groceries.map(function (c) { return c.order; }));
 
         if (order == Number.NEGATIVE_INFINITY) {
             order = 0;
@@ -240,14 +240,14 @@ router.put('/:storeId/changeGroceryCategory', function (req, res) {
         collection.updateOne(updateFilter, update, function (err, doc) {
         });
 
-                //
+        //
         // Update the collection
         //
         let updateFilter2 = { storeId: req.params.storeId, "categories.name": newCategoryName };
         let update2 = { $set: { "categories.$.groceries": newCategory.groceries } };
 
         collection.updateOne(updateFilter2, update2, function (err, doc) {
-        }); 
+        });
 
         res.json(newCategory);
     });
@@ -271,29 +271,44 @@ router.put('/:storeId/category', function (req, res) {
         //
         // Check if the grocery is moving up (close to the top) or down
         //
-        const currentCategory = store.categories.find(c => c.name == request.category);
-        const swapCategory = store.categories.find(c => c.order == updated.order);
+        if (current.order != updated.order) {
+            const currentCategory = store.categories.find(c => c.name == request.category);
+            const swapCategory = store.categories.find(c => c.order == updated.order);
 
-        for (let i = 0; i < store.categories.length; i++) {
-            let c = store.categories[i];
+            for (let i = 0; i < store.categories.length; i++) {
+                let c = store.categories[i];
 
-            if (c == currentCategory) {
-                c.order = updated.order;
+                if (c == currentCategory) {
+                    c.order = updated.order;
+                }
+
+                if (c == swapCategory) {
+                    c.order = current.order;
+                }
             }
 
-            if (c == swapCategory) {
-                c.order = current.order;
-            }
+            //
+            // Update the collection
+            //
+            let update = { $set: { "categories": store.categories } };
+
+            collection.updateOne(filter, update, function (err, doc) {
+                res.send('OK');
+            });
+        } else if (current.name != updated.name) {
+            //
+            // Update the collection
+            //
+            let updateFilter2 = { storeId: req.params.storeId, "categories.name": current.name };
+            let update2 = { $set: { "categories.$.name": updated.name } };
+
+            collection.updateOne(updateFilter2, update2, function (err, doc) {
+            });
+
+            res.send('UPDATED NAME');
+        } else {
+            res.send('nothing to do');
         }
-
-        //
-        // Update the collection
-        //
-        let update = { $set: { "categories": store.categories } };
-
-        collection.updateOne(filter, update, function (err, doc) {
-            res.send('OK');
-        });
     });
 });
 
