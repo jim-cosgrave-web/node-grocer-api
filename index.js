@@ -1,8 +1,9 @@
-const express = require('express')
-  , bodyParser = require('body-parser');
+const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
 const port = process.env.PORT || 3100;
 const cors = require('cors');
+require('dotenv').config();
 
 app.use(cors())
 
@@ -20,7 +21,7 @@ app.use('/users', userRoutes);
 app.use('/list', groceryListRoutes);
 app.use('/groceries', groceryRoutes);
 
-db.connect('mongodb+srv://admin:Password1@main-cluster-lwdvp.mongodb.net/test?retryWrites=true&w=majority', 'groceriesDB', function (err) {
+db.connect("mongodb+srv://admin:" + process.env.DB_PASSWORD + "@main-cluster-lwdvp.mongodb.net/test?retryWrites=true&w=majority", 'groceriesDB', function (err) {
   if (err) {
     console.log('Unable to connect to Mongo.');
     process.exit(1);
