@@ -21,6 +21,16 @@ const getGroceryCollection = function() {
     return db.getCollection('groceries'); 
 }
 
+const compareNames = (a, b) => {
+    if (a.name < b.name) {
+        return -1;
+    }
+    if (a.name > b.name) {
+        return 1;
+    }
+    return 0;
+}
+
 router.get('/:listId?', authentication.authenticateToken, function (req, res) {
     var collection = getCollection();
 
@@ -161,6 +171,7 @@ router.post('/grocery', authentication.authenticateToken, function (req, res) {
                     }
 
                     list.groceries.push(req.body.grocery);
+                    list.groceries.sort(compareNames);
 
                     collection.update(filter, list);
                     res.json(list);
