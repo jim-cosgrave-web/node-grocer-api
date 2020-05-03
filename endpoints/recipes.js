@@ -43,5 +43,30 @@ router.post('/', authentication.authenticateToken, function (req, res) {
     });
 });
 
+//
+// GET - Distinct recipe categories by user
+//
+router.get('/:userId/categories', function (req, res) {
+    const collection = getCollection();
+
+    const user_id = new ObjectId(req.params.userId);
+    let filter = { user_id: user_id };
+
+    collection.find(req.params.userId).toArray(function (err, docs) {
+        let result = docs.map(item => item.categories)
+
+        // flatten to [ "1", "2", "1", "3" ]
+        .reduce((prev, curr) => prev.concat(curr), [])
+        
+        // filter unique [ "1", "2", "3" ]
+        .filter((item, i, arr) => arr.indexOf(item) === i)
+        .sort();
+
+        const r = ['Vegetarian', 'Fast', 'Meat', 'Lunch', 'Things to make while quarantined', 'Other', 'Favorites', 'Kid Friendly']
+
+        res.send(r.sort());
+    });
+});
+
 
 module.exports = router;

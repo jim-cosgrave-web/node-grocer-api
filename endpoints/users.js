@@ -34,6 +34,7 @@ router.post('/', function(req, res){
 
         response.valid = passwordHash.verify(req.body.password, user.password);
         response.token = authentication.generateAccessToken(req.body.username);
+        response.user_id = user._id;
 
         res.json(response);
     });
