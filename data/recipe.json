@@ -1,0 +1,24 @@
+{
+    "user_id": "5e8a91841c9d44000091d00f",
+    "name": "Bowties and Broccoli",
+    "link": "https://www.budgetbytes.com/bowties-and-broccoli/",
+    "ingredients": [
+        {
+            "name": "Bowtie Noodles"
+        },
+        {
+            "name": "Frozen Broccoli"
+        },
+        {
+            "name": "Parmesan Cheese"
+        },
+        {
+            "name": "Butter"
+        }
+    ],
+    "categories": [
+        "Vegetarian",
+        "Pasta",
+        "Quick Dinners"
+    ]
+}
