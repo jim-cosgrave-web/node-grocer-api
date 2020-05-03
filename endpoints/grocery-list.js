@@ -144,14 +144,15 @@ router.post('/', authentication.authenticateToken, function (req, res) {
 
 router.post('/grocery', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
-
     const list_id = new ObjectId(req.body.list_id);
-    let filter = { _id: list_id, "groceries.name": {$regex: new RegExp("^" + req.body.grocery.name, "i")} };
+
+    let groceryName = req.body.grocery.name.trim();
+    let filter = { _id: list_id, "groceries.name": {$regex: new RegExp("^" + groceryName, "i")} };
 
     delete req.body._id;
 
     const groceryCollection = getGroceryCollection();
-    groceryCollection.update({ name: {$regex: new RegExp("^" + req.body.grocery.name, "i")} }, { name: req.body.grocery.name }, {upsert: true});
+    groceryCollection.updateOne({ name: {$regex: new RegExp("^" + groceryName, "i")} }, { name: groceryName }, {upsert: true});
 
     collection.findOne(filter, function (err, grocery) {
         if(grocery) {
