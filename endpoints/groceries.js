@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../db');
+var authentication = require('../middleware/authentication');
 
 router.use(function timeLog(req, res, next) {
     //console.log('Inventory API called at : ', Date.now());
@@ -15,7 +16,7 @@ const getStoresCollection = function () {
     return db.getCollection('stores');
 }
 
-router.get('/', function(req, res){
+router.get('/', authentication.authenticateToken, function(req, res){
     var collection = getCollection();
 
     collection.find().toArray(function(err, docs) {
@@ -23,7 +24,7 @@ router.get('/', function(req, res){
     });
 });
 
-router.post('/', function(req, res){
+router.post('/', authentication.authenticateToken, function(req, res){
     var collection = getCollection();
 
     collection.insertOne(req.body, function(err, result){
@@ -31,7 +32,7 @@ router.post('/', function(req, res){
     });
 });
 
-router.get('/reload', function(req, res){
+router.get('/reload', authentication.authenticateToken, function(req, res){
     var collection = getCollection();
     var storesCollection = getStoresCollection();
 

@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
-const service = require('../services/stores.service');
-var passwordHash = require('password-hash');
 var authentication = require('../middleware/authentication');
 
 const getCollection = function () {
@@ -21,7 +19,7 @@ router.use(function timeLog(req, res, next) {
 //
 // GET - All stores or by id
 //
-router.get('/:storeId?', function (req, res) {
+router.get('/:storeId?', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
 
     let filter = {};
@@ -38,7 +36,7 @@ router.get('/:storeId?', function (req, res) {
 //
 // POST - New Store
 //
-router.post('/', function (req, res) {
+router.post('/', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
 
     collection.insertOne(req.body, function (err, result) {

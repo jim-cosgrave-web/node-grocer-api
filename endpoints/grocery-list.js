@@ -32,7 +32,7 @@ router.get('/:listId?', authentication.authenticateToken, function (req, res) {
 //
 // Get list for store
 //
-router.get('/:listId/:storeId', function (req, res) {
+router.get('/:listId/:storeId', authentication.authenticateToken, function (req, res) {
     let responseList = {};
     responseList.storeId = req.params.storeId;
     responseList.listId = req.params.listId;
@@ -111,7 +111,7 @@ router.get('/:listId/:storeId', function (req, res) {
     // });
 });
 
-router.post('/', function (req, res) {
+router.post('/', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
 
     const list_id = new ObjectId(req.body._id);
@@ -132,7 +132,7 @@ router.post('/', function (req, res) {
 });
 
 
-router.post('/grocery', function (req, res) {
+router.post('/grocery', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
 
     const list_id = new ObjectId(req.body.list_id);
@@ -170,7 +170,7 @@ router.post('/grocery', function (req, res) {
     });
 });
 
-router.put('/grocery', function (req, res) {
+router.put('/grocery', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
 
     const list_id = new ObjectId(req.body.list_id);
@@ -182,7 +182,7 @@ router.put('/grocery', function (req, res) {
     res.send('OK');
 });
 
-router.post('/toggleGrocery', function (req, res) {
+router.post('/toggleGrocery', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
 
     const list_id = new ObjectId(req.body.list_id);
@@ -195,7 +195,7 @@ router.post('/toggleGrocery', function (req, res) {
     });
 });
 
-router.post('/removechecked', function (req, res) {
+router.post('/removechecked', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
 
     const list_id = new ObjectId(req.body.list_id);
