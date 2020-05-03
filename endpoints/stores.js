@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../db');
 const service = require('../services/stores.service');
 var passwordHash = require('password-hash');
+var authentication = require('../middleware/authentication');
 
 const getCollection = function () {
     return db.getCollection('stores');
@@ -48,7 +49,7 @@ router.post('/', function (req, res) {
 //
 // POST - New Store Category
 //
-router.post('/:storeId/category', function (req, res) {
+router.post('/:storeId/category', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
     const filter = { storeId: req.params.storeId }
     const request = req.body;
@@ -82,7 +83,7 @@ router.post('/:storeId/category', function (req, res) {
 //
 // POST - New Store Grocery
 //
-router.post('/:storeId/grocery', function (req, res) {
+router.post('/:storeId/grocery', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
     const filter = { storeId: req.params.storeId }
     const grocery = req.body;
@@ -158,7 +159,7 @@ router.post('/:storeId/grocery', function (req, res) {
 //
 // PUT - Store Grocery
 //
-router.put('/:storeId/grocery', function (req, res) {
+router.put('/:storeId/grocery', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
     const filter = { storeId: req.params.storeId }
     const request = req.body;
@@ -204,7 +205,7 @@ router.put('/:storeId/grocery', function (req, res) {
 //
 // PUT - Store Grocery
 //
-router.put('/:storeId/changeGroceryCategory', function (req, res) {
+router.put('/:storeId/changeGroceryCategory', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
     const filter = { storeId: req.params.storeId }
     const request = req.body;
@@ -256,7 +257,7 @@ router.put('/:storeId/changeGroceryCategory', function (req, res) {
 //
 // PUT - Store Category
 //
-router.put('/:storeId/category', function (req, res) {
+router.put('/:storeId/category', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
     const filter = { storeId: req.params.storeId }
     const request = req.body;
@@ -315,7 +316,7 @@ router.put('/:storeId/category', function (req, res) {
 //
 // DELETE - Store Grocery
 //
-router.delete('/:storeId/grocery', function (req, res) {
+router.delete('/:storeId/grocery', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
     const filter = { storeId: req.params.storeId }
     const request = req.body;

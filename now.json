@@ -13,6 +13,7 @@
     }
   ],
   "env": {
-    "DB_PASSWORD": "@db-password"
+    "DB_PASSWORD": "@db-password",
+    "ACCESS_TOKEN_SECRET": "@access-token-secret"
   }
 }

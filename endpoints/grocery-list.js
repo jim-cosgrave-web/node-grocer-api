@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../db');
+var authentication = require('../middleware/authentication');
 const { ObjectId } = require('mongodb').ObjectId;
 
 router.use(function timeLog(req, res, next) {
@@ -20,7 +21,7 @@ const getGroceryCollection = function() {
     return db.getCollection('groceries'); 
 }
 
-router.get('/:listId?', function (req, res) {
+router.get('/:listId?', authentication.authenticateToken, function (req, res) {
     var collection = getCollection();
 
     collection.find().toArray(function (err, docs) {

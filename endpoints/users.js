@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var db = require('../db');
 var passwordHash = require('password-hash');
+var authentication = require('../middleware/authentication');
 
 router.use(function timeLog(req, res, next) {
     //console.log('User API called at : ', Date.now());
@@ -26,7 +27,13 @@ router.post('/', function(req, res){
     const filter = { username: req.body.username }
 
     collection.findOne(filter, function(err, user) {
-        response['valid'] = passwordHash.verify(req.body.password, user.password);
+        if(!user) {
+            res.json({ unauthorized: true });
+            return;
+        }
+
+        response.valid = passwordHash.verify(req.body.password, user.password);
+        response.token = authentication.generateAccessToken(req.body.username);
 
         res.json(response);
     });
