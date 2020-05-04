@@ -5,7 +5,7 @@ const port = process.env.PORT || 3100;
 const cors = require('cors');
 require('dotenv').config();
 
-app.use(cors())
+app.use(cors());
 
 const db = require('./db');
 const inventoryRoutes = require('./endpoints/inventory');

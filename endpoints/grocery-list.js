@@ -152,7 +152,7 @@ router.post('/grocery', authentication.authenticateToken, function (req, res) {
     delete req.body._id;
 
     const groceryCollection = getGroceryCollection();
-    groceryCollection.updateOne({ name: {$regex: new RegExp("^" + groceryName, "i")} }, { name: groceryName }, {upsert: true});
+    groceryCollection.update({ name: {$regex: new RegExp("^" + groceryName, "i")} }, { name: groceryName }, {upsert: true});
 
     collection.findOne(filter, function (err, grocery) {
         if(grocery) {
