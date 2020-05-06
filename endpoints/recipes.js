@@ -23,11 +23,29 @@ const compareNames = (a, b) => {
     return 0;
 }
 
-router.get('/', authentication.authenticateToken, function (req, res) {
+//
+// GET - Recipes
+//
+router.get('/:userId', authentication.authenticateToken, function (req, res) {
     var collection = getCollection();
 
     collection.find().toArray(function (err, docs) {
         res.json(docs);
+    });
+});
+
+//
+// GET - Inidividual recipe
+//
+router.get('/:userId/:recipeId', authentication.authenticateToken, function (req, res) {
+    const user_id = req.params.userId;
+    const recipe_id = new ObjectId(req.params.recipeId);
+
+    var collection = getCollection();
+    const filter = { _id: recipe_id, user_id: user_id }
+
+    collection.findOne(filter, function (err, recipe) {
+        res.json(recipe);
     });
 });
 
