@@ -74,6 +74,24 @@ router.post('/', authentication.authenticateToken, function (req, res) {
 });
 
 //
+// POST - New Recipe
+//
+router.put('/', authentication.authenticateToken, function (req, res) {
+    const collection = getCollection();
+    const recipe_id = new ObjectId(req.body._id);
+    const filter = { _id: recipe_id };
+
+    delete req.body._id;
+
+    collection.update(filter, req.body);
+    res.send('OK');
+
+    // collection.findOne(filter, function(err, recipe) {
+    //     res.json(recipe);
+    // });
+});
+
+//
 // POST - New Category
 //
 router.post('/category', authentication.authenticateToken, function (req, res) {
