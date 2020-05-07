@@ -13,6 +13,10 @@ const getCollection = function () {
     return db.getCollection('recipes');
 }
 
+const getCategoryCollection = function () {
+    return db.getCollection('recipeCategories');
+}
+
 const compareNames = (a, b) => {
     if (a.name < b.name) {
         return -1;
@@ -22,6 +26,14 @@ const compareNames = (a, b) => {
     }
     return 0;
 }
+
+router.get('/categories', function(req, res) {
+    const collection = getCategoryCollection();
+
+    collection.find().toArray(function (err, docs) {
+        res.json(docs);
+    });
+});
 
 //
 // GET - Recipes
@@ -62,6 +74,29 @@ router.post('/', authentication.authenticateToken, function (req, res) {
 });
 
 //
+// POST - New Category
+//
+router.post('/category', authentication.authenticateToken, function (req, res) {
+    const collection = getCategoryCollection();
+
+    const filter = { name: req.body.name }
+
+    collection.findOne(filter, function (err, category) {
+        if(!category) {
+            collection.insertOne(filter, function(err, result) {
+                res.send({added: true});
+            });
+        } else {
+            res.json({exists: true});
+        }
+    });
+
+    // collection.insertOne(req.body, function (err, result) {
+    //     res.send('OK');
+    // });
+});
+
+//
 // GET - Distinct recipe categories by user
 //
 router.get('/:userId/categories', function (req, res) {
@@ -72,19 +107,14 @@ router.get('/:userId/categories', function (req, res) {
 
     collection.find(req.params.userId).toArray(function (err, docs) {
         let result = docs.map(item => item.categories)
+                         .reduce((prev, curr) => prev.concat(curr), [])
+                         .filter((item, i, arr) => arr.indexOf(item) === i)
+                         .sort();
 
-        // flatten to [ "1", "2", "1", "3" ]
-        .reduce((prev, curr) => prev.concat(curr), [])
-        
-        // filter unique [ "1", "2", "3" ]
-        .filter((item, i, arr) => arr.indexOf(item) === i)
-        .sort();
-
-        const r = ['Vegetarian', 'Fast', 'Meat', 'Lunch', 'Things to make while quarantined', 'Other', 'Favorites', 'Kid Friendly']
-
-        res.send(r.sort());
+        res.send(result);
     });
 });
+
 
 
 module.exports = router;
