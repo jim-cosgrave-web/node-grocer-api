@@ -141,7 +141,9 @@ router.post('/', authentication.authenticateToken, function (req, res) {
     });
 });
 
-
+//
+// POST - Add grocery
+//
 router.post('/grocery', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
     const list_id = new ObjectId(req.body.list_id);
@@ -180,6 +182,44 @@ router.post('/grocery', authentication.authenticateToken, function (req, res) {
             });
         }
     });
+});
+
+//
+// POST - Add grocery
+//
+router.post('/recipe', authentication.authenticateToken, function (req, res) {
+    const collection = getCollection();
+    const groceries = req.body.ingredients.filter(g => { return g.checked });
+    const filter = { user_id: req.body.user_id };
+
+    delete req.body._id;
+
+    collection.findOne(filter, function (err, list) {
+        if (!list) {
+            res.json({ exists: false });
+            return;
+        }
+
+        let checks = [];
+
+        for(let i = 0; i < groceries.length; i++) { 
+            let grocery = groceries[i];
+            grocery.checked = false;
+
+            const found = list.groceries.find(g => g.name.toLowerCase().trim() === grocery.name.toLowerCase().trim());
+
+            if(!found) {
+                list.groceries.push(grocery);
+            }
+
+            checks.push({ found: found ? 'found': 'not found', grocery: grocery});
+        }
+
+        //res.json({ before: before, after: list, groceries: groceries });
+        collection.update(filter, list); 
+        res.json(checks);
+    });
+
 });
 
 router.put('/grocery', authentication.authenticateToken, function (req, res) {
