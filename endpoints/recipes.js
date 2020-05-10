@@ -39,7 +39,8 @@ router.get('/categories', function(req, res) {
 // GET - Recipes
 //
 router.get('/:userId', authentication.authenticateToken, function (req, res) {
-    var collection = getCollection();
+    const collection = getCollection();
+    const filter = { user_id: req.user.userId };
 
     collection.find().toArray(function (err, docs) {
         res.json(docs);
@@ -54,7 +55,7 @@ router.get('/:userId/:recipeId', authentication.authenticateToken, function (req
     const recipe_id = new ObjectId(req.params.recipeId);
 
     var collection = getCollection();
-    const filter = { _id: recipe_id, user_id: user_id }
+    const filter = { _id: recipe_id, user_id: req.user.userId }
 
     collection.findOne(filter, function (err, recipe) {
         res.json(recipe);
@@ -74,21 +75,17 @@ router.post('/', authentication.authenticateToken, function (req, res) {
 });
 
 //
-// POST - New Recipe
+// PUT - New Recipe
 //
 router.put('/', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
     const recipe_id = new ObjectId(req.body._id);
-    const filter = { _id: recipe_id };
+    const filter = { _id: recipe_id, user_id: req.user.userId };
 
     delete req.body._id;
 
     collection.update(filter, req.body);
     res.send('OK');
-
-    // collection.findOne(filter, function(err, recipe) {
-    //     res.json(recipe);
-    // });
 });
 
 //
@@ -120,7 +117,7 @@ router.post('/category', authentication.authenticateToken, function (req, res) {
 router.get('/:userId/categories', function (req, res) {
     const collection = getCollection();
 
-    const user_id = new ObjectId(req.params.userId);
+    const user_id = new ObjectId(req.user.userId);
     let filter = { user_id: user_id };
 
     collection.find(req.params.userId).toArray(function (err, docs) {

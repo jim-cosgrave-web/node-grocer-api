@@ -32,9 +32,10 @@ const compareNames = (a, b) => {
 }
 
 router.get('/:listId?', authentication.authenticateToken, function (req, res) {
-    var collection = getCollection();
+    const collection = getCollection();
+    const filter = { user_id: req.user.userId };
 
-    collection.find().toArray(function (err, docs) {
+    collection.find(filter).toArray(function (err, docs) {
         res.json(docs);
     });
 });
@@ -55,7 +56,7 @@ router.get('/:listId/:storeId', authentication.authenticateToken, function (req,
     let groceryList = [];
     let categories = [{ name: '**Uncategorized**', value: '', uncategorized: true }];
 
-    collection.findOne({ _id: list_id }, function (err, list) {
+    collection.findOne({ _id: list_id, user_id: req.user.userId }, function (err, list) {
         responseList.listName = list.name;
         responseList.userId = list.user_id;
 
@@ -125,7 +126,7 @@ router.post('/', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
 
     const list_id = new ObjectId(req.body._id);
-    const filter = { _id: list_id };
+    const filter = { _id: list_id, user_id: req.user.userId  };
 
     //
     // Must remove the _id property otherwise mongo throws an error
@@ -149,7 +150,7 @@ router.post('/grocery', authentication.authenticateToken, function (req, res) {
     const list_id = new ObjectId(req.body.list_id);
 
     let groceryName = req.body.grocery.name.trim();
-    let filter = { _id: list_id, "groceries.name": {$regex: new RegExp("^" + groceryName, "i")} };
+    let filter = { _id: list_id, user_id: req.user.userId , "groceries.name": {$regex: new RegExp("^" + groceryName, "i")} };
 
     delete req.body._id;
 
@@ -190,7 +191,7 @@ router.post('/grocery', authentication.authenticateToken, function (req, res) {
 router.post('/recipe', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
     const groceries = req.body.ingredients.filter(g => { return g.checked });
-    const filter = { user_id: req.body.user_id };
+    const filter = { user_id: req.user.userId };
 
     delete req.body._id;
 
@@ -226,7 +227,7 @@ router.put('/grocery', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
 
     const list_id = new ObjectId(req.body.list_id);
-    let filter = { _id: list_id, "groceries.name": req.body.grocery.name };
+    let filter = { _id: list_id, user_id: req.user.userId, "groceries.name": req.body.grocery.name };
 
     delete req.body._id;
 
@@ -238,7 +239,7 @@ router.post('/toggleGrocery', authentication.authenticateToken, function (req, r
     const collection = getCollection();
 
     const list_id = new ObjectId(req.body.list_id);
-    const filter = { _id: list_id, "groceries.name": req.body.grocery.name };
+    const filter = { _id: list_id, user_id: req.user.userId, "groceries.name": req.body.grocery.name };
 
     delete req.body._id;
 
@@ -251,7 +252,7 @@ router.post('/removechecked', authentication.authenticateToken, function (req, r
     const collection = getCollection();
 
     const list_id = new ObjectId(req.body.list_id);
-    let filter = { _id: list_id  };
+    let filter = { _id: list_id, user_id: req.user.userId };
 
     collection.updateMany(filter, { $pull: { "groceries": { checked : true } } }, function() {
         res.send('Ok');

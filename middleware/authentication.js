@@ -19,8 +19,10 @@ exports.authenticateToken = function(req, res, next) {
     });
 }
 
-exports.generateAccessToken = function(username) {
-    return jwt.sign(username, process.env.ACCESS_TOKEN_SECRET);
+exports.generateAccessToken = function(user) {
+    const token = jwt.sign({ username: user.username, userId: user._id }, process.env.ACCESS_TOKEN_SECRET);
+
+    return token;
     
     //
     // Not sure why, but I'm unable to set expiresIn
