@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { ObjectId } = require('mongodb').ObjectId;
+
 var authentication = require('../middleware/authentication');
 
 const getCollection = function () {
@@ -24,8 +26,11 @@ router.get('/:storeId?', authentication.authenticateToken, function (req, res) {
 
     let filter = {};
 
+    console.log(req.params);
+
     if (req.params.storeId) {
-        filter = { storeId: req.params.storeId }
+        //filter = { storeId: req.params.storeId }
+        filter = { _id: new ObjectId(req.params.storeId) };
     }
 
     collection.find(filter).toArray(function (err, docs) {
@@ -39,6 +44,10 @@ router.get('/:storeId?', authentication.authenticateToken, function (req, res) {
 router.post('/', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
 
+    if(!req.body.categories) {
+        req.body.categories = [];
+    }
+
     collection.insertOne(req.body, function (err, result) {
         res.send('OK');
     });
@@ -49,7 +58,7 @@ router.post('/', authentication.authenticateToken, function (req, res) {
 //
 router.post('/:storeId/category', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
-    const filter = { storeId: req.params.storeId }
+    const filter = { _id: new ObjectId(req.params.storeId) }
     const request = req.body;
 
     collection.findOne(filter, function (err, store) {
@@ -83,7 +92,7 @@ router.post('/:storeId/category', authentication.authenticateToken, function (re
 //
 router.post('/:storeId/grocery', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
-    const filter = { storeId: req.params.storeId }
+    const filter = { _id: new ObjectId(req.params.storeId) };
     const grocery = req.body;
 
     const groceryCollection = getGroceryCollection();
@@ -159,7 +168,7 @@ router.post('/:storeId/grocery', authentication.authenticateToken, function (req
 //
 router.put('/:storeId/grocery', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
-    const filter = { storeId: req.params.storeId }
+    const filter = { _id: new ObjectId(req.params.storeId) };
     const request = req.body;
     const current = request.currentGrocery;
     const updated = request.updatedGrocery;
@@ -191,7 +200,7 @@ router.put('/:storeId/grocery', authentication.authenticateToken, function (req,
         //
         // Update the collection
         //
-        let updateFilter = { storeId: req.params.storeId, "categories.name": request.category };
+        let updateFilter = { _id: new ObjectId(req.params.storeId), "categories.name": request.category };
         let update = { $set: { "categories.$.groceries": category.groceries } };
 
         collection.updateOne(updateFilter, update, function (err, doc) {
@@ -205,7 +214,7 @@ router.put('/:storeId/grocery', authentication.authenticateToken, function (req,
 //
 router.put('/:storeId/changeGroceryCategory', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
-    const filter = { storeId: req.params.storeId }
+    const filter = { _id: new ObjectId(req.params.storeId) };
     const request = req.body;
     const groceryName = request.groceryName;
     const currentCategoryName = request.currentCategoryName;
@@ -257,7 +266,7 @@ router.put('/:storeId/changeGroceryCategory', authentication.authenticateToken, 
 //
 router.put('/:storeId/category', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
-    const filter = { storeId: req.params.storeId }
+    const filter = { _id: new ObjectId(req.params.storeId) };
     const request = req.body;
     const current = request.currentCategory;
     const updated = request.updatedCategory;
@@ -316,7 +325,7 @@ router.put('/:storeId/category', authentication.authenticateToken, function (req
 //
 router.delete('/:storeId/grocery', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
-    const filter = { storeId: req.params.storeId }
+    const filter = { _id: new ObjectId(req.params.storeId) };
     const request = req.body;
 
     collection.findOne(filter, function (err, store) {
