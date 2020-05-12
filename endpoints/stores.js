@@ -44,7 +44,7 @@ router.get('/:storeId?', authentication.authenticateToken, function (req, res) {
 router.post('/', authentication.authenticateToken, function (req, res) {
     const collection = getCollection();
 
-    if(!req.body.categories) {
+    if (!req.body.categories) {
         req.body.categories = [];
     }
 
@@ -68,8 +68,18 @@ router.post('/:storeId/category', authentication.authenticateToken, function (re
 
         category = { name: request.category, groceries: [] };
 
-        const order = Math.max.apply(Math, store.categories.map(function (c) { return c.order; }));
-        category.order = order + 1;
+        //
+        // Set the category order
+        //
+        if (store.categories && store.categories.length > 0) {
+            const order = Math.max.apply(Math, store.categories.map(function (c) { return c.order; }));
+            category.order = order + 1;
+        } else {
+            //
+            // Default order to 1 if its the first category
+            //
+            category.order = 1;
+        }
 
         if (!store.categories) {
             store.categories = []
@@ -307,7 +317,7 @@ router.put('/:storeId/category', authentication.authenticateToken, function (req
             //
             // Update the collection
             //
-            let updateFilter2 = { storeId: req.params.storeId, "categories.name": current.name };
+            let updateFilter2 = { _id: new ObjectId(req.params.storeId), "categories.name": current.name };
             let update2 = { $set: { "categories.$.name": updated.name } };
 
             collection.updateOne(updateFilter2, update2, function (err, doc) {
