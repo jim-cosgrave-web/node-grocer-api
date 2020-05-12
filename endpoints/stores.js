@@ -26,12 +26,33 @@ router.get('/:storeId?', authentication.authenticateToken, function (req, res) {
 
     let filter = {};
 
-    console.log(req.params);
-
     if (req.params.storeId) {
         //filter = { storeId: req.params.storeId }
         filter = { _id: new ObjectId(req.params.storeId) };
     }
+
+    collection.find(filter).toArray(function (err, docs) {
+        res.json(docs);
+    });
+});
+
+//
+// POST - Get user stores (subscriptions)
+//
+router.post('/userstores', authentication.authenticateToken, function(req, res) {
+    const collection = getCollection();
+    let storeIds = req.body.storeIds;
+
+    if(!storeIds || storeIds.length == 0) {
+        res.json({ error: 'No store ids' });
+        return;
+    }
+
+    for(let i = 0; i < storeIds.length; i++) {
+        storeIds[i] = new ObjectId(storeIds[i]);
+    }
+
+    const filter = { _id: { '$in': storeIds } };
 
     collection.find(filter).toArray(function (err, docs) {
         res.json(docs);
