@@ -70,8 +70,8 @@ router.get('/:listId/:storeId', authentication.authenticateToken, function (req,
             //
             for (let i = 0; i < store.categories.length; i++) {
                 const storeCategory = store.categories[i];
-                let category = { name: storeCategory.name, groceries: [] };
-                categories.push({ name: storeCategory.name, value: storeCategory.name });
+                let category = { name: storeCategory.name, order: storeCategory.order, groceries: [] };
+                categories.push({ name: storeCategory.name, value: storeCategory.name, order: storeCategory.order });
 
                 //
                 // Loop over each grocery in the category
@@ -104,6 +104,9 @@ router.get('/:listId/:storeId', authentication.authenticateToken, function (req,
                     groceryList.push(category);
                 }
             }
+
+            categories.sort((a, b) => a.order - b.order);   
+            groceryList = groceryList.sort((a, b) => a.order - b.order);
 
             if(remainingGroceries && remainingGroceries.length > 0) {
                 let uncategorized = { name: '**Uncategorized**', uncategorized: true, groceries: remainingGroceries };
