@@ -355,6 +355,7 @@ router.put('/:storeId/category', authentication.authenticateToken, function (req
 // DELETE - Store Grocery
 //
 router.delete('/:storeId/grocery', authentication.authenticateToken, function (req, res) {
+    
     const collection = getCollection();
     const filter = { _id: new ObjectId(req.params.storeId) };
     const request = req.body;
@@ -364,10 +365,9 @@ router.delete('/:storeId/grocery', authentication.authenticateToken, function (r
             res.send('BAD!');
         }
 
-        let updateFilter = { storeId: req.params.storeId, "categories.name": request.category };
-        let update = { $pull: { "categories.$.groceries": { groceryName: request.groceryName } } };
+        const update = { $pull: { "categories.$[].groceries" : { groceryName: request.groceryName } } };
 
-        collection.updateOne(updateFilter, update, function (err, doc) {
+        collection.updateOne(filter, update, function (err, doc) {
             res.send('OK');
         });
     });
