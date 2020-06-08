@@ -1,4 +1,5 @@
 var express = require('express');
+var bcrypt = require('bcrypt');
 var router = express.Router();
 var db = require('../db');
 var passwordHash = require('password-hash');
@@ -33,16 +34,26 @@ router.post('/', function (req, res) {
             return;
         }
 
-        response.valid = passwordHash.verify(req.body.password, user.password);
+        bcrypt.compare(req.body.password, user.password, function (err, result) {
+            if (!err && result) {
+                response.token = authentication.generateAccessToken(user);
+                response.user_id = user._id;
+                res.json(response);
+            } else {
+                res.json({ status: 'Please enter a valid username/password' });
+            }
+        });
 
-        if (response.valid) {
-            response.token = authentication.generateAccessToken(user);
-            response.user_id = user._id;
+        // response.valid = passwordHash.verify(req.body.password, user.password);
 
-            res.json(response);
-        } else {
-            res.json({ status: 'Please enter a valid username/password' });
-        }
+        // if (response.valid) {
+        //     response.token = authentication.generateAccessToken(user);
+        //     response.user_id = user._id;
+
+        //     res.json(response);
+        // } else {
+        //     res.json({ status: 'Please enter a valid username/password' });
+        // }
     });
 });
 
